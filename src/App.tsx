@@ -38,15 +38,20 @@ function App() {
   }, [session]);
 
   async function fetchJobs() {
+    if (!session?.user) return;
+    
     setLoading(true);
     const { data, error } = await supabase
       .from('jobs')
       .select('*')
+      .eq('user_id', session.user.id) // Explicitly filter by user_id
       .order('created_at', { ascending: false });
 
     if (error) {
       console.error('Error fetching jobs:', error);
+      alert('Error loading data: ' + error.message);
     } else {
+      console.log('Fetched jobs count:', data?.length);
       setJobs(data || []);
     }
     setLoading(false);
