@@ -117,41 +117,41 @@ function App() {
           </button>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border pb-4">
-          <div className="flex items-center bg-gray-100/50 dark:bg-neutral-900/50 p-1 rounded-xl border border-border">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border/60 pb-6">
+          <div className="flex items-center bg-secondary/5 p-1 rounded-2xl border border-border/60">
             <button onClick={() => setView('Board')} className={`view-tab ${view === 'Board' ? 'view-tab-active' : 'view-tab-inactive'}`}>
-              <LayoutGrid className="w-3.5 h-3.5" /> Board
+              <LayoutGrid className="w-4 h-4" /> Board
             </button>
             <button onClick={() => setView('List')} className={`view-tab ${view === 'List' ? 'view-tab-active' : 'view-tab-inactive'}`}>
-              <List className="w-3.5 h-3.5" /> List
+              <List className="w-4 h-4" /> List
             </button>
             <button onClick={() => setView('Table')} className={`view-tab ${view === 'Table' ? 'view-tab-active' : 'view-tab-inactive'}`}>
-              <Table className="w-3.5 h-3.5" /> Table
+              <Table className="w-4 h-4" /> Table
             </button>
             <button onClick={() => setView('Calendar')} className={`view-tab ${view === 'Calendar' ? 'view-tab-active' : 'view-tab-inactive'}`}>
-              <CalendarIcon className="w-3.5 h-3.5" /> Calendar
+              <CalendarIcon className="w-4 h-4" /> Calendar
             </button>
           </div>
 
           <div className="flex items-center gap-3 relative">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <button 
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border border-border bg-surface text-xs font-bold transition-all ${filterStatus !== 'All' ? 'text-primary border-primary/50' : 'text-secondary hover:text-primary'}`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-2xl border border-border/60 bg-surface text-[13px] font-bold transition-all shadow-sm ${filterStatus !== 'All' ? 'text-accent border-accent/30 bg-accent/5' : 'text-secondary hover:text-primary'}`}
               >
-                <Filter className="w-3.5 h-3.5" />
+                <Filter className="w-4 h-4" />
                 {filterStatus === 'All' ? 'Filter' : filterStatus}
-                {filterStatus !== 'All' && <X className="w-3 h-3 ml-1 hover:text-red-500" onClick={(e) => { e.stopPropagation(); setFilterStatus('All'); }} />}
+                {filterStatus !== 'All' && <X className="w-3.5 h-3.5 ml-1 hover:text-red-500" onClick={(e) => { e.stopPropagation(); setFilterStatus('All'); }} />}
               </button>
               
               <div className="relative group">
-                <button className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-border bg-surface text-xs font-bold text-secondary hover:text-primary transition-all">
-                  <ArrowUpDown className="w-3.5 h-3.5" />
+                <button className="flex items-center gap-2 px-4 py-2 rounded-2xl border border-border/60 bg-surface text-[13px] font-bold text-secondary hover:text-primary transition-all shadow-sm">
+                  <ArrowUpDown className="w-4 h-4" />
                   Sort: {sortBy}
                 </button>
-                <div className="absolute right-0 top-full mt-2 w-32 bg-surface border border-border rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                <div className="absolute right-0 top-full mt-2 w-40 bg-surface border border-border rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 p-1.5 animate-in fade-in slide-in-from-top-2">
                   {(['Recent', 'Company', 'Role', 'Date'] as SortMode[]).map(s => (
-                    <button key={s} onClick={() => setSortBy(s)} className="w-full text-left px-4 py-2 text-[10px] font-bold text-secondary hover:text-primary hover:bg-background first:rounded-t-xl last:rounded-b-xl">
+                    <button key={s} onClick={() => setSortBy(s)} className={`w-full text-left px-3 py-2 text-[12px] font-bold rounded-xl transition-colors ${sortBy === s ? 'bg-accent/5 text-accent' : 'text-secondary hover:text-primary hover:bg-secondary/5'}`}>
                       {s}
                     </button>
                   ))}
@@ -160,13 +160,13 @@ function App() {
             </div>
 
             {isFilterOpen && (
-              <div className="absolute right-0 top-full mt-2 w-48 bg-surface border border-border rounded-xl shadow-xl z-50 p-2 animate-in fade-in slide-in-from-top-2">
-                <p className="text-[10px] font-bold text-secondary px-3 py-2 uppercase tracking-widest">Filter by Status</p>
+              <div className="absolute right-0 top-full mt-2 w-52 bg-surface border border-border rounded-2xl shadow-2xl z-50 p-2 animate-in fade-in slide-in-from-top-2">
+                <p className="text-[10px] font-black text-secondary/40 px-3 py-2 uppercase tracking-[0.2em]">Filter by Status</p>
                 {(['All', 'Saved', 'Applied', 'Interviewing', 'Offer', 'Rejected'] as const).map(s => (
                   <button 
                     key={s} 
                     onClick={() => { setFilterStatus(s); setIsFilterOpen(false); }}
-                    className={`w-full text-left px-3 py-2 text-xs font-medium rounded-lg transition-colors ${filterStatus === s ? 'bg-primary/5 text-primary' : 'text-secondary hover:bg-background hover:text-primary'}`}
+                    className={`w-full text-left px-3 py-2.5 text-[13px] font-bold rounded-xl transition-all ${filterStatus === s ? 'bg-accent/5 text-accent' : 'text-secondary hover:bg-secondary/5 hover:text-primary'}`}
                   >
                     {s}
                   </button>

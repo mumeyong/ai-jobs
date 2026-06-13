@@ -49,89 +49,94 @@ export function JobModal({ isOpen, onClose, onSubmit, initialStatus = 'Applied' 
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
-      <div className="bg-surface w-full max-w-xl rounded-2xl shadow-2xl border border-border overflow-hidden animate-in fade-in zoom-in duration-200">
-        <div className="px-6 py-4 border-b border-border flex items-center justify-between bg-gray-50/50">
-          <h2 className="font-bold text-lg">Add New Job</h2>
-          <button onClick={onClose} className="p-2 hover:bg-gray-200/50 rounded-xl transition-colors">
+      <div className="bg-surface w-full max-w-xl rounded-[28px] shadow-2xl border border-border overflow-hidden animate-in fade-in zoom-in duration-300">
+        <div className="px-8 py-6 border-b border-border flex items-center justify-between">
+          <h2 className="font-bold text-xl tracking-tight">Add New Job</h2>
+          <button onClick={onClose} className="p-2 hover:bg-secondary/10 rounded-full transition-colors">
             <X className="w-5 h-5 text-secondary" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-secondary uppercase tracking-wider flex items-center gap-1.5">
+        <form onSubmit={handleSubmit} className="p-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5 mb-8">
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold text-secondary uppercase tracking-[0.1em] flex items-center gap-2 px-1">
                 <Building className="w-3.5 h-3.5" /> Company
               </label>
               <input 
                 required
-                className="w-full px-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/5 transition-all"
+                className="input-field"
                 value={formData.company}
                 onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                placeholder="e.g. Google"
+                placeholder="e.g. Apple"
               />
             </div>
             
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-secondary uppercase tracking-wider flex items-center gap-1.5">
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold text-secondary uppercase tracking-[0.1em] flex items-center gap-2 px-1">
                 <Briefcase className="w-3.5 h-3.5" /> Role
               </label>
               <input 
                 required
-                className="w-full px-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/5 transition-all"
+                className="input-field"
                 value={formData.role}
                 onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                placeholder="e.g. Product Designer"
+                placeholder="e.g. Software Engineer"
               />
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-secondary uppercase tracking-wider flex items-center gap-1.5">
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold text-secondary uppercase tracking-[0.1em] flex items-center gap-2 px-1">
                 Status
               </label>
-              <select 
-                className="w-full px-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/5 transition-all appearance-none"
-                value={formData.status}
-                onChange={(e) => setFormData({ ...formData, status: e.target.value as JobStatus })}
-              >
-                <option value="Saved">Saved</option>
-                <option value="Applied">Applied</option>
-                <option value="Interviewing">Interviewing</option>
-                <option value="Offer">Offer</option>
-                <option value="Rejected">Rejected</option>
-              </select>
+              <div className="relative">
+                <select 
+                  className="input-field appearance-none cursor-pointer"
+                  value={formData.status}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value as JobStatus })}
+                >
+                  <option value="Saved">Saved</option>
+                  <option value="Applied">Applied</option>
+                  <option value="Interviewing">Interviewing</option>
+                  <option value="Offer">Offer</option>
+                  <option value="Rejected">Rejected</option>
+                </select>
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-secondary">
+                  <X className="w-4 h-4 rotate-45" />
+                </div>
+              </div>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-secondary uppercase tracking-wider flex items-center gap-1.5">
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold text-secondary uppercase tracking-[0.1em] flex items-center gap-2 px-1">
                 Date Applied
               </label>
               <input 
                 type="date"
-                className="w-full px-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/5 transition-all"
+                className="input-field"
                 value={formData.applied_date}
                 onChange={(e) => setFormData({ ...formData, applied_date: e.target.value })}
               />
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-secondary uppercase tracking-wider flex items-center gap-1.5">
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold text-secondary uppercase tracking-[0.1em] flex items-center gap-2 px-1">
                 <DollarSign className="w-3.5 h-3.5" /> Salary Range
               </label>
               <input 
-                className="w-full px-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/5 transition-all"
+                className="input-field"
                 value={formData.salary_range}
                 onChange={(e) => setFormData({ ...formData, salary_range: e.target.value })}
                 placeholder="e.g. $120k - $150k"
               />
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-secondary uppercase tracking-wider flex items-center gap-1.5">
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold text-secondary uppercase tracking-[0.1em] flex items-center gap-2 px-1">
                 <Globe className="w-3.5 h-3.5" /> Link
               </label>
               <input 
-                className="w-full px-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/5 transition-all"
+                className="input-field"
                 value={formData.link}
                 onChange={(e) => setFormData({ ...formData, link: e.target.value })}
                 placeholder="https://..."
@@ -139,29 +144,29 @@ export function JobModal({ isOpen, onClose, onSubmit, initialStatus = 'Applied' 
             </div>
           </div>
 
-          <div className="space-y-1.5 mb-6">
-            <label className="text-xs font-bold text-secondary uppercase tracking-wider flex items-center gap-1.5">
+          <div className="space-y-2 mb-8">
+            <label className="text-[11px] font-bold text-secondary uppercase tracking-[0.1em] flex items-center gap-2 px-1">
               <FileText className="w-3.5 h-3.5" /> Description / Notes
             </label>
             <textarea 
-              className="w-full px-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/5 transition-all min-h-[100px] resize-none"
+              className="input-field min-h-[120px] resize-none py-3"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               placeholder="Key requirements, tech stack, etc."
             />
           </div>
 
-          <div className="flex gap-3 pt-2">
+          <div className="flex gap-4">
             <button 
               type="button" 
               onClick={onClose} 
-              className="flex-1 px-4 py-2.5 rounded-xl border border-border font-bold text-sm hover:bg-gray-50 transition-all active:scale-95"
+              className="flex-1 px-6 py-3 rounded-2xl border border-border font-bold text-[15px] hover:bg-secondary/5 transition-all active:scale-[0.98]"
             >
               Cancel
             </button>
             <button 
               type="submit" 
-              className="flex-1 px-4 py-2.5 rounded-xl bg-primary text-white font-bold text-sm hover:opacity-90 transition-all active:scale-95 shadow-lg shadow-primary/20"
+              className="flex-1 px-6 py-3 rounded-2xl bg-primary text-background font-bold text-[15px] hover:opacity-90 transition-all active:scale-[0.98] shadow-lg shadow-primary/10"
             >
               Add Job
             </button>
