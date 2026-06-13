@@ -38,38 +38,54 @@ function App() {
   }, [session]);
 
   async function fetchJobs() {
-    if (!session?.user) return;
+    if (!session?.user) {
+      console.log('No active session, skipping fetch');
+      return;
+    }
     
     setLoading(true);
+    console.log('Fetching jobs for user:', session.user.id);
+    
     const { data, error } = await supabase
       .from('jobs')
       .select('*')
-      .eq('user_id', session.user.id) // Explicitly filter by user_id
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching jobs:', error);
-      alert('Error loading data: ' + error.message);
+      console.error('Supabase Error:', error);
+      alert('Supabase Error: ' + error.message);
     } else {
-      console.log('Fetched jobs count:', data?.length);
+      console.log('Successfully fetched jobs:', data);
       setJobs(data || []);
     }
     setLoading(false);
   }
 
   async function addJob(newJob: NewJob) {
-    if (!session?.user) return;
+    if (!session?.user) {
+      alert('You must be logged in to add a job.');
+      return;
+    }
+
+    const payload = {
+      ...newJob,
+      user_id: session.user.id
+    };
+
+    console.log('Attempting to save job with payload:', payload);
 
     const { data, error } = await supabase
       .from('jobs')
-      .insert([{ ...newJob, user_id: session.user.id }])
+      .insert([payload])
       .select();
 
     if (error) {
-      console.error('Error adding job:', error);
-      alert('Failed to save job: ' + error.message);
+      console.error('Save Error:', error);
+      alert('Failed to save job: ' + error.message + ' (Code: ' + error.code + ')');
     } else if (data) {
+      console.log('Successfully saved:', data[0]);
       setJobs([data[0], ...jobs]);
+      setIsModalOpen(false);
     }
   }
 
