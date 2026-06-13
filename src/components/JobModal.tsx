@@ -1,21 +1,32 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { X, Globe, DollarSign, Building, Briefcase, FileText } from 'lucide-react';
 import type { NewJob, JobStatus } from '../types';
 
 interface JobModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (job: NewJob) => void;
+  initialStatus?: JobStatus;
 }
 
-export function JobModal({ isOpen, onClose, onSubmit }: JobModalProps) {
+export function JobModal({ isOpen, onClose, onSubmit, initialStatus = 'Applied' }: JobModalProps) {
   const [formData, setFormData] = useState<NewJob>({
     company: '',
     role: '',
-    status: 'Applied',
+    status: initialStatus,
     applied_date: new Date().toISOString().split('T')[0],
     link: '',
-    notes: ''
+    notes: '',
+    salary_range: '',
+    description: '',
+    logo_url: ''
   });
+
+  useEffect(() => {
+    if (isOpen) {
+      setFormData(prev => ({ ...prev, status: initialStatus }));
+    }
+  }, [isOpen, initialStatus]);
 
   if (!isOpen) return null;
 
@@ -23,91 +34,137 @@ export function JobModal({ isOpen, onClose, onSubmit }: JobModalProps) {
     e.preventDefault();
     onSubmit(formData);
     onClose();
-    // Reset form
     setFormData({
       company: '',
       role: '',
       status: 'Applied',
       applied_date: new Date().toISOString().split('T')[0],
       link: '',
-      notes: ''
+      notes: '',
+      salary_range: '',
+      description: '',
+      logo_url: ''
     });
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(0, 0, 0, 0.7)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 1000,
-      backdropFilter: 'blur(4px)'
-    }}>
-      <div className="glass-card" style={{ padding: '32px', width: '100%', maxWidth: '500px', margin: '20px' }}>
-        <h2 style={{ marginBottom: '24px' }}>Add New Job</h2>
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <div>
-            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Company</label>
-            <input 
-              required
-              className="input"
-              value={formData.company}
-              onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-              placeholder="Google, Meta, etc."
-            />
-          </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Role</label>
-            <input 
-              required
-              className="input"
-              value={formData.role}
-              onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-              placeholder="Software Engineer"
-            />
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Status</label>
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+      <div className="bg-surface w-full max-w-xl rounded-2xl shadow-2xl border border-border overflow-hidden animate-in fade-in zoom-in duration-200">
+        <div className="px-6 py-4 border-b border-border flex items-center justify-between bg-gray-50/50">
+          <h2 className="font-bold text-lg">Add New Job</h2>
+          <button onClick={onClose} className="p-2 hover:bg-gray-200/50 rounded-xl transition-colors">
+            <X className="w-5 h-5 text-secondary" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-secondary uppercase tracking-wider flex items-center gap-1.5">
+                <Building className="w-3.5 h-3.5" /> Company
+              </label>
+              <input 
+                required
+                className="w-full px-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/5 transition-all"
+                value={formData.company}
+                onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                placeholder="e.g. Google"
+              />
+            </div>
+            
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-secondary uppercase tracking-wider flex items-center gap-1.5">
+                <Briefcase className="w-3.5 h-3.5" /> Role
+              </label>
+              <input 
+                required
+                className="w-full px-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/5 transition-all"
+                value={formData.role}
+                onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                placeholder="e.g. Product Designer"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-secondary uppercase tracking-wider flex items-center gap-1.5">
+                Status
+              </label>
               <select 
-                className="input"
-                style={{ appearance: 'none', colorScheme: 'dark' }}
+                className="w-full px-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/5 transition-all appearance-none"
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value as JobStatus })}
               >
-                <option value="Applied" style={{ background: '#1e1b4b', color: 'white' }}>Applied</option>
-                <option value="Interviewing" style={{ background: '#1e1b4b', color: 'white' }}>Interviewing</option>
-                <option value="Offer" style={{ background: '#1e1b4b', color: 'white' }}>Offer</option>
-                <option value="Rejected" style={{ background: '#1e1b4b', color: 'white' }}>Rejected</option>
+                <option value="Saved">Saved</option>
+                <option value="Applied">Applied</option>
+                <option value="Interviewing">Interviewing</option>
+                <option value="Offer">Offer</option>
+                <option value="Rejected">Rejected</option>
               </select>
             </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Date Applied</label>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-secondary uppercase tracking-wider flex items-center gap-1.5">
+                Date Applied
+              </label>
               <input 
                 type="date"
-                className="input"
+                className="w-full px-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/5 transition-all"
                 value={formData.applied_date}
                 onChange={(e) => setFormData({ ...formData, applied_date: e.target.value })}
               />
             </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-secondary uppercase tracking-wider flex items-center gap-1.5">
+                <DollarSign className="w-3.5 h-3.5" /> Salary Range
+              </label>
+              <input 
+                className="w-full px-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/5 transition-all"
+                value={formData.salary_range}
+                onChange={(e) => setFormData({ ...formData, salary_range: e.target.value })}
+                placeholder="e.g. $120k - $150k"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-secondary uppercase tracking-wider flex items-center gap-1.5">
+                <Globe className="w-3.5 h-3.5" /> Link
+              </label>
+              <input 
+                className="w-full px-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/5 transition-all"
+                value={formData.link}
+                onChange={(e) => setFormData({ ...formData, link: e.target.value })}
+                placeholder="https://..."
+              />
+            </div>
           </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Link (Optional)</label>
-            <input 
-              className="input"
-              value={formData.link}
-              onChange={(e) => setFormData({ ...formData, link: e.target.value })}
-              placeholder="https://jobs.company.com/..."
+
+          <div className="space-y-1.5 mb-6">
+            <label className="text-xs font-bold text-secondary uppercase tracking-wider flex items-center gap-1.5">
+              <FileText className="w-3.5 h-3.5" /> Description / Notes
+            </label>
+            <textarea 
+              className="w-full px-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/5 transition-all min-h-[100px] resize-none"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              placeholder="Key requirements, tech stack, etc."
             />
           </div>
-          <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
-            <button type="submit" className="btn btn-primary" style={{ flex: 1, justifyContent: 'center' }}>Add Job</button>
-            <button type="button" onClick={onClose} className="btn" style={{ flex: 1, justifyContent: 'center', background: 'rgba(255,255,255,0.05)' }}>Cancel</button>
+
+          <div className="flex gap-3 pt-2">
+            <button 
+              type="button" 
+              onClick={onClose} 
+              className="flex-1 px-4 py-2.5 rounded-xl border border-border font-bold text-sm hover:bg-gray-50 transition-all active:scale-95"
+            >
+              Cancel
+            </button>
+            <button 
+              type="submit" 
+              className="flex-1 px-4 py-2.5 rounded-xl bg-primary text-white font-bold text-sm hover:opacity-90 transition-all active:scale-95 shadow-lg shadow-primary/20"
+            >
+              Add Job
+            </button>
           </div>
         </form>
       </div>
