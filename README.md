@@ -21,11 +21,13 @@ A fast, modern job tracking application built with React, TypeScript, and Supaba
    - Copy your `Project URL` and `Anon Key`.
    - Create a `.env` file from `.env.example` and paste your credentials.
 
-3. **Database Schema:**
+3. **Database Schema & Security:**
    Run the following SQL in the Supabase SQL Editor:
    ```sql
+   -- Create the jobs table with a user_id column
    create table jobs (
      id uuid primary key default uuid_generate_v4(),
+     user_id uuid references auth.users not null,
      company text not null,
      role text not null,
      status text default 'Applied',
@@ -35,11 +37,28 @@ A fast, modern job tracking application built with React, TypeScript, and Supaba
      created_at timestamptz default now()
    );
 
-   -- IMPORTANT: For the app to work without authentication, 
-   -- you must either disable Row Level Security (RLS) 
-   -- or create a policy that allows all users to Read/Write.
-   -- To disable RLS (easiest for personal projects):
-   alter table jobs disable row level security;
+   -- Enable Row Level Security
+   alter table jobs enable row level security;
+
+   -- Create policy to allow users to see only their own jobs
+   create policy "Users can view their own jobs" 
+   on jobs for select 
+   using (auth.uid() = user_id);
+
+   -- Create policy to allow users to insert their own jobs
+   create policy "Users can insert their own jobs" 
+   on jobs for insert 
+   with check (auth.uid() = user_id);
+
+   -- Create policy to allow users to update their own jobs
+   create policy "Users can update their own jobs" 
+   on jobs for update 
+   using (auth.uid() = user_id);
+
+   -- Create policy to allow users to delete their own jobs
+   create policy "Users can delete their own jobs" 
+   on jobs for delete 
+   using (auth.uid() = user_id);
    ```
 
 4. **Run the App:**

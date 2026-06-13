@@ -3,8 +3,11 @@ import './styles/globals.css';
 import { supabase } from './lib/supabase';
 import type { Job, NewJob } from './types';
 import { JobModal } from './components/JobModal';
+import { Auth } from './components/Auth';
+import type { Session } from '@supabase/supabase-js';
 
 function App() {
+  const [session, setSession] = useState<Session | null>(null);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -12,8 +15,27 @@ function App() {
   const [filterStatus, setFilterStatus] = useState<Job['status'] | 'All'>('All');
 
   useEffect(() => {
-    fetchJobs();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (session) {
+      fetchJobs();
+    } else {
+      setJobs([]);
+      setLoading(false);
+    }
+  }, [session]);
 
   async function fetchJobs() {
     setLoading(true);
@@ -31,9 +53,11 @@ function App() {
   }
 
   async function addJob(newJob: NewJob) {
+    if (!session?.user) return;
+
     const { data, error } = await supabase
       .from('jobs')
-      .insert([newJob])
+      .insert([{ ...newJob, user_id: session.user.id }])
       .select();
 
     if (error) {
@@ -83,21 +107,39 @@ function App() {
 
   return (
     <div className="container">
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
-        <div>
-          <h1 style={{ fontSize: '2.5rem', marginBottom: '8px' }}>Jobs Tracker</h1>
-          <p style={{ color: 'var(--text-secondary)' }}>Keep track of your career journey</p>
-        </div>
-        <button className="btn btn-primary" onClick={() => setIsModalOpen(true)}>
-          <span>+</span> Add New Job
-        </button>
-      </header>
+      {!session ? (
+        <>
+          <header style={{ textAlign: 'center', marginBottom: '40px' }}>
+            <h1 style={{ fontSize: '3rem', marginBottom: '12px' }}>Jobs Tracker</h1>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem' }}>Securely track your career journey</p>
+          </header>
+          <Auth />
+        </>
+      ) : (
+        <>
+          <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
+            <div>
+              <h1 style={{ fontSize: '2.5rem', marginBottom: '8px' }}>Jobs Tracker</h1>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <p style={{ color: 'var(--text-secondary)' }}>{session.user.email}</p>
+                <button 
+                  onClick={() => supabase.auth.signOut()}
+                  style={{ background: 'none', border: 'none', color: 'var(--accent)', cursor: 'pointer', fontSize: '0.9rem', fontWeight: '600' }}
+                >
+                  Sign Out
+                </button>
+              </div>
+            </div>
+            <button className="btn btn-primary" onClick={() => setIsModalOpen(true)}>
+              <span>+</span> Add New Job
+            </button>
+          </header>
 
-      <JobModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        onSubmit={addJob} 
-      />
+          <JobModal 
+            isOpen={isModalOpen} 
+            onClose={() => setIsModalOpen(false)} 
+            onSubmit={addJob} 
+          />
 
       <section className="filters" style={{ display: 'flex', gap: '16px', marginBottom: '24px', flexWrap: 'wrap' }}>
         <input 
@@ -196,6 +238,8 @@ function App() {
           </div>
         )}
       </main>
+      </>
+      )}
     </div>
   );
 }
