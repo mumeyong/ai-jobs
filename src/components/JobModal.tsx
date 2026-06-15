@@ -15,6 +15,8 @@ const DEFAULT_FORM_DATA: NewJob = {
   role: '',
   status: 'Applied',
   applied_date: new Date().toISOString().split('T')[0],
+  interview_date: '',
+  interview_time: '',
   link: '',
   notes: '',
   salary_range: '',
@@ -33,6 +35,8 @@ export function JobModal({ isOpen, onClose, onSubmit, initialStatus = 'Applied',
           role: editingJob.role,
           status: editingJob.status,
           applied_date: editingJob.applied_date,
+          interview_date: editingJob.interview_date || '',
+          interview_time: editingJob.interview_time || '',
           link: editingJob.link || '',
           notes: editingJob.notes || '',
           salary_range: editingJob.salary_range || '',
@@ -126,6 +130,33 @@ export function JobModal({ isOpen, onClose, onSubmit, initialStatus = 'Applied',
                 onChange={(e) => setFormData({ ...formData, applied_date: e.target.value })}
               />
             </div>
+
+            {formData.status === 'Interviewing' && (
+              <>
+                <div className="space-y-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                  <label className="text-[11px] font-bold text-purple-600 dark:text-purple-400 uppercase tracking-[0.1em] flex items-center gap-2 px-1">
+                    Interview Date
+                  </label>
+                  <input 
+                    type="date"
+                    className="input-field border-purple-500/20 focus:border-purple-500"
+                    value={formData.interview_date}
+                    onChange={(e) => setFormData({ ...formData, interview_date: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                  <label className="text-[11px] font-bold text-purple-600 dark:text-purple-400 uppercase tracking-[0.1em] flex items-center gap-2 px-1">
+                    Interview Time
+                  </label>
+                  <input 
+                    type="time"
+                    className="input-field border-purple-500/20 focus:border-purple-500"
+                    value={formData.interview_time}
+                    onChange={(e) => setFormData({ ...formData, interview_time: e.target.value })}
+                  />
+                </div>
+              </>
+            )}
 
             <div className="space-y-2">
               <label className="text-[11px] font-bold text-secondary uppercase tracking-[0.1em] flex items-center gap-2 px-1">

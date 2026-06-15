@@ -6,6 +6,8 @@ export interface Job {
   role: string;
   status: JobStatus;
   applied_date: string;
+  interview_date?: string;
+  interview_time?: string;
   link?: string;
   notes?: string;
   salary_range?: string;
@@ -19,6 +21,8 @@ export interface NewJob {
   role: string;
   status: JobStatus;
   applied_date: string;
+  interview_date?: string;
+  interview_time?: string;
   link?: string;
   notes?: string;
   salary_range?: string;

@@ -65,17 +65,28 @@ export function CalendarView({ jobs }: CalendarViewProps) {
             if (day === null) return <div key={`empty-${idx}`} className="border-r border-b border-border bg-gray-50/20 dark:bg-neutral-900/10"></div>;
 
             const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            const dayJobs = jobs.filter(j => j.applied_date.startsWith(dateStr));
+            const dayApplications = jobs.filter(j => j.applied_date === dateStr);
+            const dayInterviews = jobs.filter(j => j.interview_date === dateStr);
 
             return (
-              <div key={day} className="border-r border-b border-border p-2 group hover:bg-gray-50/50 dark:hover:bg-neutral-900/50 transition-colors">
-                <span className="text-xs font-bold text-secondary mb-2 block">{day}</span>
+              <div key={day} className="border-r border-b border-border p-2 group hover:bg-gray-50/50 dark:hover:bg-neutral-900/50 transition-colors flex flex-col gap-1">
+                <span className="text-xs font-bold text-secondary mb-1 block">{day}</span>
                 <div className="space-y-1">
-                  {dayJobs.map(job => (
+                  {dayInterviews.map(job => (
                     <div 
-                      key={job.id} 
+                      key={`int-${job.id}`} 
+                      className="px-2 py-1 bg-purple-600 text-white rounded-lg text-[9px] font-bold truncate cursor-pointer hover:bg-purple-700 transition-colors shadow-sm"
+                      title={`INTERVIEW: ${job.company} - ${job.role}${job.interview_time ? ` at ${job.interview_time}` : ''}`}
+                    >
+                      <span className="opacity-70 mr-1">INT:</span>
+                      {job.company}
+                    </div>
+                  ))}
+                  {dayApplications.map(job => (
+                    <div 
+                      key={`app-${job.id}`} 
                       className="px-2 py-1 bg-primary text-background rounded-lg text-[9px] font-bold truncate cursor-pointer hover:opacity-90 transition-opacity"
-                      title={`${job.company} - ${job.role}`}
+                      title={`Applied: ${job.company} - ${job.role}`}
                     >
                       {job.company}
                     </div>

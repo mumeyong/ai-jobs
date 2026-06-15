@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { MoreVertical, Calendar, ExternalLink, Trash2, Check, Pencil } from 'lucide-react';
+import { MoreVertical, Calendar, ExternalLink, Trash2, Check, Pencil, Bell } from 'lucide-react';
 import type { Job, JobStatus } from '../types';
 
 interface JobCardProps {
@@ -22,6 +22,22 @@ export function JobCard({ job, onUpdateStatus, onDelete, onEdit }: JobCardProps)
     Interviewing: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20',
     Rejected: 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20',
     Offer: 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20',
+  };
+
+  const getGoogleCalendarUrl = (job: Job) => {
+    if (!job.interview_date) return '';
+    
+    const title = encodeURIComponent(`Interview: ${job.role} at ${job.company}`);
+    const details = encodeURIComponent(`Job Application Details: ${job.link || 'N/A'}\nNotes: ${job.notes || ''}`);
+    
+    const datePart = job.interview_date.replace(/-/g, '');
+    const timePart = (job.interview_time || '09:00').replace(/:/g, '') + '00';
+    
+    // Assume 1 hour interview
+    const startDate = `${datePart}T${timePart}`;
+    const endDate = `${datePart}T${String(Number(timePart.slice(0, 2)) + 1).padStart(2, '0')}${timePart.slice(2)}`;
+    
+    return `https://www.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&dates=${startDate}/${endDate}`;
   };
 
   const statuses: JobStatus[] = ['Saved', 'Applied', 'Interviewing', 'Offer', 'Rejected'];
@@ -47,8 +63,6 @@ export function JobCard({ job, onUpdateStatus, onDelete, onEdit }: JobCardProps)
 
     if (isMenuOpen) {
       document.addEventListener('mousedown', handleClickOutside);
-      // Update position on scroll to keep it attached if needed, 
-      // but absolute positioning relative to body already handles page scroll.
     }
     
     return () => {
@@ -142,6 +156,33 @@ export function JobCard({ job, onUpdateStatus, onDelete, onEdit }: JobCardProps)
         <p className="text-[13px] text-secondary line-clamp-2 mb-4 leading-relaxed font-medium">
           {job.description}
         </p>
+      )}
+
+      {job.status === 'Interviewing' && job.interview_date && (
+        <div className="mb-4 p-3 bg-purple-500/5 border border-purple-500/20 rounded-xl flex items-center justify-between group/interview">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-purple-500/10 rounded-lg">
+              <Bell className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+            </div>
+            <div>
+              <p className="text-[10px] font-black text-purple-600/50 uppercase tracking-widest">Interview Scheduled</p>
+              <p className="text-xs font-bold text-purple-700 dark:text-purple-300">
+                {new Date(job.interview_date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
+                {job.interview_time && ` at ${job.interview_time}`}
+              </p>
+            </div>
+          </div>
+          <a 
+            href={getGoogleCalendarUrl(job)}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Notify me on Gmail/Calendar"
+            className="p-2 hover:bg-purple-500/10 rounded-lg text-purple-600 dark:text-purple-400 transition-colors flex items-center gap-1.5"
+          >
+            <Calendar className="w-4 h-4" />
+            <span className="text-[10px] font-bold">Remind Me</span>
+          </a>
+        </div>
       )}
 
       <div className="flex flex-wrap gap-2 mb-4">

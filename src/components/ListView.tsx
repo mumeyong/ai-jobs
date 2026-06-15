@@ -45,8 +45,19 @@ export function ListView({ jobs, onUpdateStatus, onDelete, onEdit }: ListViewPro
               </div>
               
               <div className="flex items-center gap-1.5 text-secondary">
-                <Calendar className="w-3.5 h-3.5" />
-                <span className="text-xs font-medium">{new Date(job.applied_date).toLocaleDateString()}</span>
+                {job.status === 'Interviewing' && job.interview_date ? (
+                  <>
+                    <Calendar className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+                    <span className="text-xs font-bold text-purple-700 dark:text-purple-300">
+                      INT: {new Date(job.interview_date).toLocaleDateString()}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <Calendar className="w-3.5 h-3.5" />
+                    <span className="text-xs font-medium">{new Date(job.applied_date).toLocaleDateString()}</span>
+                  </>
+                )}
               </div>
               
               <div className="flex justify-start">
