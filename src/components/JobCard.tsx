@@ -1,15 +1,16 @@
 import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { MoreVertical, Calendar, ExternalLink, Trash2, Check } from 'lucide-react';
+import { MoreVertical, Calendar, ExternalLink, Trash2, Check, Pencil } from 'lucide-react';
 import type { Job, JobStatus } from '../types';
 
 interface JobCardProps {
   job: Job;
   onUpdateStatus: (id: string, status: JobStatus) => void;
   onDelete: (id: string) => void;
+  onEdit: (job: Job) => void;
 }
 
-export function JobCard({ job, onUpdateStatus, onDelete }: JobCardProps) {
+export function JobCard({ job, onUpdateStatus, onDelete, onEdit }: JobCardProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -30,7 +31,7 @@ export function JobCard({ job, onUpdateStatus, onDelete }: JobCardProps) {
       const rect = triggerRef.current.getBoundingClientRect();
       setMenuPosition({
         top: rect.bottom + window.scrollY,
-        left: rect.right - 192 + window.scrollX, // 192 is w-48
+        left: rect.left - 192 + rect.width + window.scrollX, // Align to the right of the button
       });
     }
     setIsMenuOpen(!isMenuOpen);
@@ -46,19 +47,19 @@ export function JobCard({ job, onUpdateStatus, onDelete }: JobCardProps) {
 
     if (isMenuOpen) {
       document.addEventListener('mousedown', handleClickOutside);
-      window.addEventListener('scroll', () => setIsMenuOpen(false), { passive: true });
+      // Update position on scroll to keep it attached if needed, 
+      // but absolute positioning relative to body already handles page scroll.
     }
     
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
-      window.removeEventListener('scroll', () => setIsMenuOpen(false));
     };
   }, [isMenuOpen]);
 
   const dropdownMenu = isMenuOpen && createPortal(
     <div 
       ref={menuRef}
-      className="fixed w-48 bg-surface border border-border rounded-2xl shadow-2xl z-[999] p-1.5 animate-in fade-in slide-in-from-top-2"
+      className="absolute w-48 bg-surface border border-border rounded-2xl shadow-2xl z-[999] p-1.5 animate-in fade-in slide-in-from-top-2"
       style={{ top: menuPosition.top + 8, left: menuPosition.left }}
     >
       <p className="text-[10px] font-black text-secondary/40 px-3 py-2 uppercase tracking-[0.2em]">Change Status</p>
@@ -82,6 +83,16 @@ export function JobCard({ job, onUpdateStatus, onDelete }: JobCardProps) {
         ))}
       </div>
       <div className="h-px bg-border/60 my-1.5"></div>
+      <button
+        onClick={() => {
+          onEdit(job);
+          setIsMenuOpen(false);
+        }}
+        className="w-full flex items-center gap-2 px-3 py-2 text-[13px] font-bold text-secondary hover:bg-secondary/5 hover:text-primary rounded-xl transition-all"
+      >
+        <Pencil className="w-3.5 h-3.5" />
+        Edit Details
+      </button>
       <button
         onClick={() => {
           if (confirm('Are you sure you want to delete this job?')) {

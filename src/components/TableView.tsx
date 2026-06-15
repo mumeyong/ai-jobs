@@ -1,13 +1,14 @@
-import { Trash2, Building, DollarSign, Calendar, Globe } from 'lucide-react';
+import { Trash2, Building, DollarSign, Calendar, Globe, Pencil } from 'lucide-react';
 import type { Job, JobStatus } from '../types';
 
 interface TableViewProps {
   jobs: Job[];
   onUpdateStatus: (id: string, status: JobStatus) => void;
   onDelete: (id: string) => void;
+  onEdit: (job: Job) => void;
 }
 
-export function TableView({ jobs, onUpdateStatus, onDelete }: TableViewProps) {
+export function TableView({ jobs, onUpdateStatus, onDelete, onEdit }: TableViewProps) {
   const statusColors: Record<JobStatus, string> = {
     Saved: 'bg-gray-100 text-gray-700 dark:bg-neutral-800 dark:text-neutral-300',
     Applied: 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400',
@@ -84,6 +85,12 @@ export function TableView({ jobs, onUpdateStatus, onDelete }: TableViewProps) {
                         <Globe className="w-4 h-4" />
                       </a>
                     )}
+                    <button 
+                      onClick={() => onEdit(job)}
+                      className="p-1.5 hover:bg-background rounded-lg text-secondary hover:text-primary transition-colors"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
                     <button 
                       onClick={() => onDelete(job.id)}
                       className="p-1.5 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg text-secondary hover:text-red-500 transition-colors"

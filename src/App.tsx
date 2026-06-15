@@ -20,6 +20,7 @@ function App() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingJob, setEditingJob] = useState<Job | null>(null);
   const [initialStatus, setInitialStatus] = useState<JobStatus>('Applied');
   const [view, setView] = useState<ViewMode>('Board');
   
@@ -48,10 +49,30 @@ function App() {
     setLoading(false);
   }
 
-  async function addJob(newJob: NewJob) {
+  async function handleSubmit(formData: NewJob) {
     if (!session?.user) return;
-    const { data, error } = await supabase.from('jobs').insert([{ ...newJob, user_id: session.user.id }]).select();
-    if (!error && data) setJobs([data[0], ...jobs]);
+    
+    if (editingJob) {
+      const { data, error } = await supabase
+        .from('jobs')
+        .update(formData)
+        .eq('id', editingJob.id)
+        .select();
+      
+      if (!error && data) {
+        setJobs(jobs.map(j => j.id === editingJob.id ? data[0] : j));
+      }
+    } else {
+      const { data, error } = await supabase
+        .from('jobs')
+        .insert([{ ...formData, user_id: session.user.id }])
+        .select();
+      
+      if (!error && data) {
+        setJobs([data[0], ...jobs]);
+      }
+    }
+    setEditingJob(null);
   }
 
   async function updateJobStatus(id: string, status: JobStatus) {
@@ -67,6 +88,12 @@ function App() {
 
   const handleAddClick = (status: JobStatus) => {
     setInitialStatus(status);
+    setEditingJob(null);
+    setIsModalOpen(true);
+  };
+
+  const handleEditClick = (job: Job) => {
+    setEditingJob(job);
     setIsModalOpen(true);
   };
 
@@ -185,13 +212,13 @@ function App() {
         ) : (
           <>
             {view === 'Board' && (
-              <KanbanBoard jobs={filteredAndSortedJobs} onUpdateStatus={updateJobStatus} onDelete={deleteJob} onAddClick={handleAddClick} />
+              <KanbanBoard jobs={filteredAndSortedJobs} onUpdateStatus={updateJobStatus} onDelete={deleteJob} onEdit={handleEditClick} onAddClick={handleAddClick} />
             )}
             {view === 'List' && (
-              <ListView jobs={filteredAndSortedJobs} onUpdateStatus={updateJobStatus} onDelete={deleteJob} />
+              <ListView jobs={filteredAndSortedJobs} onUpdateStatus={updateJobStatus} onDelete={deleteJob} onEdit={handleEditClick} />
             )}
             {view === 'Table' && (
-              <TableView jobs={filteredAndSortedJobs} onUpdateStatus={updateJobStatus} onDelete={deleteJob} />
+              <TableView jobs={filteredAndSortedJobs} onUpdateStatus={updateJobStatus} onDelete={deleteJob} onEdit={handleEditClick} />
             )}
             {view === 'Calendar' && (
               <CalendarView jobs={filteredAndSortedJobs} />
@@ -200,7 +227,13 @@ function App() {
         )}
       </main>
 
-      <JobModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSubmit={addJob} initialStatus={initialStatus} />
+      <JobModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        onSubmit={handleSubmit} 
+        initialStatus={initialStatus}
+        editingJob={editingJob}
+      />
     </div>
   );
 }

@@ -8,6 +8,7 @@ interface KanbanBoardProps {
   jobs: Job[];
   onUpdateStatus: (id: string, status: JobStatus) => void;
   onDelete: (id: string) => void;
+  onEdit: (job: Job) => void;
   onAddClick: (status: JobStatus) => void;
 }
 
@@ -19,7 +20,7 @@ const COLUMNS: { label: string; status: JobStatus }[] = [
   { label: 'Rejected', status: 'Rejected' },
 ];
 
-export function KanbanBoard({ jobs, onUpdateStatus, onDelete, onAddClick }: KanbanBoardProps) {
+export function KanbanBoard({ jobs, onUpdateStatus, onDelete, onEdit, onAddClick }: KanbanBoardProps) {
   const onDragEnd = (result: DropResult) => {
     const { destination, source, draggableId } = result;
 
@@ -32,7 +33,7 @@ export function KanbanBoard({ jobs, onUpdateStatus, onDelete, onAddClick }: Kanb
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
-      <div className="flex gap-8 overflow-x-auto pb-10 min-h-[calc(100vh-280px)] px-8 scrollbar-hide">
+      <div className="flex gap-4 md:gap-8 overflow-x-auto pb-10 min-h-[calc(100vh-280px)] px-4 md:px-8 snap-x snap-mandatory scroll-smooth">
         {COLUMNS.map((column) => {
           const columnJobs = jobs.filter((job) => job.status === column.status);
           
@@ -82,6 +83,7 @@ export function KanbanBoard({ jobs, onUpdateStatus, onDelete, onAddClick }: Kanb
                               job={job} 
                               onUpdateStatus={onUpdateStatus} 
                               onDelete={onDelete} 
+                              onEdit={onEdit}
                             />
                           </div>
                         )}

@@ -1,13 +1,14 @@
-import { ExternalLink, Trash2, Calendar, DollarSign, Building } from 'lucide-react';
+import { ExternalLink, Trash2, Calendar, DollarSign, Building, Pencil } from 'lucide-react';
 import type { Job, JobStatus } from '../types';
 
 interface ListViewProps {
   jobs: Job[];
   onUpdateStatus: (id: string, status: JobStatus) => void;
   onDelete: (id: string) => void;
+  onEdit: (job: Job) => void;
 }
 
-export function ListView({ jobs, onUpdateStatus, onDelete }: ListViewProps) {
+export function ListView({ jobs, onUpdateStatus, onDelete, onEdit }: ListViewProps) {
   const statusColors: Record<JobStatus, string> = {
     Saved: 'bg-gray-100 text-gray-700 dark:bg-neutral-800 dark:text-neutral-300',
     Applied: 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400',
@@ -75,6 +76,12 @@ export function ListView({ jobs, onUpdateStatus, onDelete }: ListViewProps) {
                 <ExternalLink className="w-4 h-4" />
               </a>
             )}
+            <button 
+              onClick={() => onEdit(job)}
+              className="p-2 hover:bg-background rounded-lg text-secondary hover:text-primary transition-colors"
+            >
+              <Pencil className="w-4 h-4" />
+            </button>
             <button 
               onClick={() => onDelete(job.id)}
               className="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg text-secondary hover:text-red-500 transition-colors"

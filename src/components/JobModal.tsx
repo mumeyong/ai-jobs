@@ -1,32 +1,49 @@
 import { useState, useEffect } from 'react';
 import { X, Globe, DollarSign, Building, Briefcase, FileText } from 'lucide-react';
-import type { NewJob, JobStatus } from '../types';
+import type { Job, NewJob, JobStatus } from '../types';
 
 interface JobModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (job: NewJob) => void;
   initialStatus?: JobStatus;
+  editingJob?: Job | null;
 }
 
-export function JobModal({ isOpen, onClose, onSubmit, initialStatus = 'Applied' }: JobModalProps) {
-  const [formData, setFormData] = useState<NewJob>({
-    company: '',
-    role: '',
-    status: initialStatus,
-    applied_date: new Date().toISOString().split('T')[0],
-    link: '',
-    notes: '',
-    salary_range: '',
-    description: '',
-    logo_url: ''
-  });
+const DEFAULT_FORM_DATA: NewJob = {
+  company: '',
+  role: '',
+  status: 'Applied',
+  applied_date: new Date().toISOString().split('T')[0],
+  link: '',
+  notes: '',
+  salary_range: '',
+  description: '',
+  logo_url: ''
+};
+
+export function JobModal({ isOpen, onClose, onSubmit, initialStatus = 'Applied', editingJob }: JobModalProps) {
+  const [formData, setFormData] = useState<NewJob>(DEFAULT_FORM_DATA);
 
   useEffect(() => {
     if (isOpen) {
-      setFormData(prev => ({ ...prev, status: initialStatus }));
+      if (editingJob) {
+        setFormData({
+          company: editingJob.company,
+          role: editingJob.role,
+          status: editingJob.status,
+          applied_date: editingJob.applied_date,
+          link: editingJob.link || '',
+          notes: editingJob.notes || '',
+          salary_range: editingJob.salary_range || '',
+          description: editingJob.description || '',
+          logo_url: editingJob.logo_url || ''
+        });
+      } else {
+        setFormData({ ...DEFAULT_FORM_DATA, status: initialStatus });
+      }
     }
-  }, [isOpen, initialStatus]);
+  }, [isOpen, editingJob, initialStatus]);
 
   if (!isOpen) return null;
 
@@ -34,24 +51,15 @@ export function JobModal({ isOpen, onClose, onSubmit, initialStatus = 'Applied' 
     e.preventDefault();
     onSubmit(formData);
     onClose();
-    setFormData({
-      company: '',
-      role: '',
-      status: 'Applied',
-      applied_date: new Date().toISOString().split('T')[0],
-      link: '',
-      notes: '',
-      salary_range: '',
-      description: '',
-      logo_url: ''
-    });
   };
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
       <div className="bg-surface w-full max-w-xl rounded-[28px] shadow-2xl border border-border overflow-hidden animate-in fade-in zoom-in duration-300">
         <div className="px-8 py-6 border-b border-border flex items-center justify-between">
-          <h2 className="font-bold text-xl tracking-tight">Add New Job</h2>
+          <h2 className="font-bold text-xl tracking-tight">
+            {editingJob ? 'Edit Job' : 'Add New Job'}
+          </h2>
           <button onClick={onClose} className="p-2 hover:bg-secondary/10 rounded-full transition-colors">
             <X className="w-5 h-5 text-secondary" />
           </button>
@@ -168,7 +176,7 @@ export function JobModal({ isOpen, onClose, onSubmit, initialStatus = 'Applied' 
               type="submit" 
               className="flex-1 px-6 py-3 rounded-2xl bg-primary text-background font-bold text-[15px] hover:opacity-90 transition-all active:scale-[0.98] shadow-lg shadow-primary/10"
             >
-              Add Job
+              {editingJob ? 'Save Changes' : 'Add Job'}
             </button>
           </div>
         </form>
