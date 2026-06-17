@@ -32,8 +32,13 @@ A fast, modern job tracking application built with React, TypeScript, and Supaba
      role text not null,
      status text default 'Applied',
      applied_date date default now(),
+     interview_date date,
+     interview_time time,
+     salary_range text,
      link text,
+     description text,
      notes text,
+     logo_url text,
      created_at timestamptz default now()
    );
 

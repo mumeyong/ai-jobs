@@ -44,31 +44,59 @@ function App() {
   async function fetchJobs() {
     if (!session?.user) return;
     setLoading(true);
-    const { data, error } = await supabase.from('jobs').select('*').order('created_at', { ascending: false });
-    if (!error && data) setJobs(data);
+    const { data, error } = await supabase
+      .from('jobs')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('Error fetching jobs:', error);
+    } else if (data) {
+      setJobs(data);
+    }
     setLoading(false);
   }
 
   async function handleSubmit(formData: NewJob) {
     if (!session?.user) return;
     
+    // Sanitize data: convert empty strings to null for better database compatibility
+    const sanitizedData = Object.fromEntries(
+      Object.entries(formData).map(([key, value]) => [
+        key, 
+        value === '' ? null : value
+      ])
+    );
+
     if (editingJob) {
       const { data, error } = await supabase
         .from('jobs')
-        .update(formData)
+        .update(sanitizedData)
         .eq('id', editingJob.id)
         .select();
       
-      if (!error && data) {
+      if (error) {
+        console.error('Error updating job:', error);
+        alert('Failed to update job. Please check your connection or database schema.');
+        return;
+      }
+      
+      if (data) {
         setJobs(jobs.map(j => j.id === editingJob.id ? data[0] : j));
       }
     } else {
       const { data, error } = await supabase
         .from('jobs')
-        .insert([{ ...formData, user_id: session.user.id }])
+        .insert([{ ...sanitizedData, user_id: session.user.id }])
         .select();
       
-      if (!error && data) {
+      if (error) {
+        console.error('Error creating job:', error);
+        alert('Failed to create job. Please check your database schema or connection.');
+        return;
+      }
+
+      if (data) {
         setJobs([data[0], ...jobs]);
       }
     }
@@ -77,13 +105,23 @@ function App() {
 
   async function updateJobStatus(id: string, status: JobStatus) {
     const { error } = await supabase.from('jobs').update({ status }).eq('id', id);
-    if (!error) setJobs(jobs.map(j => j.id === id ? { ...j, status } : j));
+    if (error) {
+      console.error('Error updating status:', error);
+      alert('Failed to update status.');
+    } else {
+      setJobs(jobs.map(j => j.id === id ? { ...j, status } : j));
+    }
   }
 
   async function deleteJob(id: string) {
     if (!confirm('Are you sure you want to delete this?')) return;
     const { error } = await supabase.from('jobs').delete().eq('id', id);
-    if (!error) setJobs(jobs.filter(j => j.id !== id));
+    if (error) {
+      console.error('Error deleting job:', error);
+      alert('Failed to delete job.');
+    } else {
+      setJobs(jobs.filter(j => j.id !== id));
+    }
   }
 
   const handleAddClick = (status: JobStatus) => {
